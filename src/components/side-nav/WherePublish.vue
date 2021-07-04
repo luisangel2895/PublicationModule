@@ -1,12 +1,11 @@
 <template>
     <b-container id="container">
-        <span v-show="false">{{ getAccountSelected }}</span>
         <controller-publish></controller-publish>
-        <div class="lds-facebook" v-if="getLoaderNetworks"><div></div><div></div><div></div></div>
+        <div class="lds-facebook" v-if="loaderNetworks"><div></div><div></div><div></div></div>
         <div class="error" v-if="!$v.numberSocialNetworkSelected.required && getSubmitPushed" id="error-accounts-selected">
            Must select at least 1 social network
         </div>
-        <b-container id="container-social-network" v-if="!getLoaderNetworks">
+        <b-container id="container-social-network" v-if="!loaderNetworks">
           <list-facebook v-show="showFacebook"></list-facebook>
           <list-twitter v-show="showTwitter"></list-twitter>
         </b-container>
@@ -27,24 +26,14 @@ export default {
     ListTwitter
   },
   computed: {
-    ...mapGetters(['getAccountSelected', 'getChangeAccount', 'getLoaderNetworks', 'getSocialNetworksSelected', 'getSubmitPushed']),
-    ...mapState(['showFacebook', 'showTwitter']),
+    ...mapGetters(['getSubmitPushed']),
+    ...mapState(['showFacebook', 'showTwitter', 'loaderNetworks', 'campaignSelected', 'socialNetworksSelected']),
     numberSocialNetworkSelected () {
-      if (this.getSocialNetworksSelected.length) {
+      if (this.socialNetworksSelected.length) {
         return true
       } else {
         return null
       }
-    }
-  },
-  updated () {
-    if (this.getAccountSelected) {
-      this.$store.dispatch('asyncNetworks', this.getAccountSelected)
-    }
-  },
-  watch: {
-    getChangeAccount () {
-      this.$store.commit('CLEAN_LIST_SELECTED')
     }
   },
   validations: {

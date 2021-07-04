@@ -21,6 +21,9 @@ export default {
     SelectCampaign,
     WherePublish,
     SelectSection
+  },
+  created () {
+    this.$store.dispatch('asyncUser')
   }
 }
 </script>

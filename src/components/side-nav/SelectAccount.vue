@@ -1,12 +1,12 @@
 <template>
     <b-container id="container">
       <div id="text-account">Select your Account</div>
-      <b-form-select id="input-account" v-model="accountSelected" :options="getAccountsList"></b-form-select>
-      <div class="error" v-if="!$v.accountSelected.required && getSubmitPushed" id="error-account">Account is required</div>
+      <b-form-select id="input-account" v-model="accountSelected" :options="accounts"></b-form-select>
+      <div class="error" v-if="!$v.accountSelected.required && submitPushed" id="error-account">Account is required</div>
     </b-container>
 </template>
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import { required } from 'vuelidate/lib/validators'
 
 export default {
@@ -16,15 +16,23 @@ export default {
       accountSelected: null
     }
   },
+
   computed: {
-    ...mapGetters(['getAccountsList', 'getSubmitPushed'])
+    ...mapState(['accounts', 'submitPushed'])
   },
   updated () {
-    if (this.accountSelected) {
-      this.$store.commit('START_LOADER_NETWORKS')
-    }
     this.$store.commit('UPDATE_ACCOUNT_SELECTED', this.accountSelected)
-    this.$store.commit('CLEAN_CHECKBOXES')
+
+    // clear campaigns
+    this.$store.commit('UPDATE_CAMPAIGN_SELECTED', null)
+    this.$store.commit('SET_CAMPAIGNS', [{ value: null, text: 'Please select a Campaign', disabled: true }])
+
+    if (this.accountSelected !== null) {
+      // loader campaigns
+      this.$store.commit('SET_CAMPAIGNS', [{ value: null, text: 'Searching Campaigns ...', disabled: true }])
+
+      this.$store.dispatch('asyncCampaigns', this.accountSelected)
+    }
 
     this.$nextTick(function () {
       const $select = document.querySelector('#input-account')

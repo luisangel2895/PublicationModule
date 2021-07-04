@@ -38,16 +38,16 @@ export default {
   },
   methods: {
     onSubmit () {
+      const arrayIdSocialNetworks = this.socialNetworksSelected.map((network) => {
+        return network.key
+      })
       this.$store.commit('PUSH_SUBMIT_BUTTON')
-      console.log('DATA FOR NEW POST:')
-      console.log(this.accountSelected)
-      console.log(this.campaignSelected)
-      console.log(this.socialNetworksSelected)
-      console.log(this.newPost)
+      console.log(' ---------- DATA FOR NEW POST ----------')
+      console.log('ID Account Selected: ', this.accountSelected)
+      console.log('ID Campaign Selected: ', this.campaignSelected)
+      console.log('IDS Social Networks Selected: ', arrayIdSocialNetworks)
+      console.log('Objeto del Nuevo Post: ', this.newPost)
     }
-  },
-  created () {
-    this.$store.dispatch('asyncUser')
   }
 }
 </script>

@@ -1,25 +1,18 @@
-// import { reject } from 'core-js/fn/promise'
+import axios from 'axios'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-// eslint-disable-next-line import/first
-import fakeData from '../fakeData.js'
-
 export default new Vuex.Store({
   state: {
-    number: 3,
-    user: {
-      accounts: []
-    },
+    accounts: [],
     accountSelected: null,
     campaigns: [],
-    campaignSelected: '',
+    campaignSelected: null,
     socialNetworks: [],
     showFacebook: true,
     showTwitter: true,
-    changeAccount: 0,
     socialNetworksSelected: [],
     newPost: {
       text: null,
@@ -31,27 +24,11 @@ export default new Vuex.Store({
     submitPushed: false
   },
   getters: {
-    getUser: state => {
-      return state.user
-    },
-    getAccountsList: state => {
-      const accountList = state.user.accounts.map((account) => {
-        return account.account_name
-      })
-      accountList.unshift({ value: null, text: 'Please select an Account', disabled: true })
-      return accountList
-    },
     getAccountSelected: state => {
       return state.accountSelected
     },
-    getCampaigns: state => {
-      return state.campaigns
-    },
     getCampaignSelected: state => {
       return state.campaignSelected
-    },
-    getSocialNetworks: state => {
-      return state.socialNetworks
     },
     getListFacebook: state => {
       return state.socialNetworks.filter((network) => {
@@ -75,9 +52,6 @@ export default new Vuex.Store({
     getUrlImage: state => {
       return state.newPost.url_img
     },
-    getChangeAccount: state => {
-      return state.changeAccount
-    },
     getSocialNetworksSelected: state => {
       return state.socialNetworksSelected
     },
@@ -89,20 +63,47 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    BRING_USER (state, payload) {
-      state.user = payload
+    GET_ACCOUNTS (state, payload) {
+      const accountList = payload.map((brand) => {
+        const obj = {}
+        obj.value = brand.idMarca
+        obj.text = brand.dscMarca
+        return obj
+      })
+      accountList.unshift({ value: null, text: 'Please select an Account', disabled: true })
+      state.accounts = accountList
     },
     UPDATE_ACCOUNT_SELECTED (state, payload) {
       state.accountSelected = payload
     },
     UPDATE_CAMPAIGNS (state, payload) {
+      const campaignList = payload.map((campaign) => {
+        const obj = {}
+        obj.value = campaign.idCampania
+        obj.text = campaign.nomCampania
+        return obj
+      })
+      campaignList.unshift({ value: null, text: 'Please select an Campaign', disabled: true })
+      state.campaigns = campaignList
+    },
+    SET_CAMPAIGNS (state, payload) {
       state.campaigns = payload
     },
     UPDATE_CAMPAIGN_SELECTED (state, payload) {
       state.campaignSelected = payload
-      state.existedList = false
     },
     UPDATE_SOCIAL_NETWORKS (state, payload) {
+      const socialNetworkList = payload.map((socialNetwork) => {
+        const obj = {}
+        obj.key = socialNetwork.idCuentaRedSocial
+        obj.network = socialNetwork.M_RED_SOCIAL.nomRedSocial.toLowerCase()
+        obj.name = socialNetwork.nomUsuarioRedsocial
+        obj.url_profile = 'https://picsum.photos/50/50?random=1'
+        return obj
+      })
+      state.socialNetworks = socialNetworkList
+    },
+    SET_SOCIAL_NETWORKS (state, payload) {
       state.socialNetworks = payload
     },
     SHOW_SECTION_NETWORK (state, payload) {
@@ -129,9 +130,6 @@ export default new Vuex.Store({
     UPDATE_URL_IMAGE (state, payload) {
       state.newPost.url_img = payload
     },
-    CLEAN_CHECKBOXES (state) {
-      state.changeAccount += 1
-    },
     SELECT_SOCIAL_NETWORK (state, payload) {
       state.socialNetworksSelected.push(payload)
     },
@@ -156,50 +154,35 @@ export default new Vuex.Store({
   },
   actions: {
     asyncUser (context) {
-      const promise = new Promise((resolve, reject) => {
-        setTimeout(() => {
-          context.commit('BRING_USER', fakeData())
-          resolve()
-        }, 1000)
-      })
-      promise.then(() => {
-        console.log('usuario obtenido OK ...')
-      })
+      axios.get('https://zrswh3t7yb.execute-api.us-east-1.amazonaws.com/dev/v1/Publish/cliente/2')
+        .then((response) => {
+          context.commit('GET_ACCOUNTS', response.data)
+          console.log('Usuario traido exitosamente', response.data)
+        })
+        .catch((error) => {
+          console.log(`Fallo traer al usuario error: ${error}`)
+        })
     },
     asyncCampaigns (context, payload) {
-      const promise = new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const accountSelected = context.state.user.accounts.find((account) => {
-            return account.account_name === payload
-          })
-          const campaigns = accountSelected.campaigns
-          context.commit('UPDATE_CAMPAIGNS', campaigns)
-          resolve()
-        }, 1500)
-      })
-      promise.then(() => {
-        console.log('campaigns obtenidas OK ...')
-      }).catch(() => {
-        console.log('ups algo paso!')
-      })
+      axios.get(`https://zrswh3t7yb.execute-api.us-east-1.amazonaws.com/dev/v1/Publish/campania/${payload}`)
+        .then((response) => {
+          context.commit('UPDATE_CAMPAIGNS', response.data)
+          console.log('Campanas traidas exitosamente', response.data)
+        })
+        .catch((error) => {
+          console.log(`Fallo traer las campanas error: ${error}`)
+        })
     },
     asyncNetworks (context, payload) {
-      const promise = new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const accountSelected = context.state.user.accounts.find((account) => {
-            return account.account_name === payload
-          })
-          const socialNetworks = accountSelected.social_networks
-          context.commit('UPDATE_SOCIAL_NETWORKS', socialNetworks)
-          resolve()
-        }, 2500)
-      })
-      promise.then(() => {
-        console.log('social networks obtenidos OK')
-        context.commit('OFF_LOADER_NETWORKS')
-      }).catch(() => {
-        console.log('ups algo paso!')
-      })
+      axios.get(`https://zrswh3t7yb.execute-api.us-east-1.amazonaws.com/dev/v1/Publish/account/${payload}`)
+        .then((response) => {
+          context.commit('UPDATE_SOCIAL_NETWORKS', response.data)
+          context.commit('OFF_LOADER_NETWORKS')
+          console.log('Social Networks traidas exitosamente', response.data)
+        })
+        .catch((error) => {
+          console.log(`Fallo traer las campanas error: ${error}`)
+        })
     }
   },
   modules: {

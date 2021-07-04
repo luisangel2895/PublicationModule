@@ -2,28 +2,40 @@
     <b-container id="container">
       <div id="text-campaign">Select your Campaign</div>
       <span v-show="false">{{getAccountSelected}}</span>
-      <b-form-select id="input-campaign" v-model="campaignSelected" :options="getCampaigns"></b-form-select>
-      <div class="error" v-if="!$v.campaignSelected.required && getSubmitPushed" id="error-campaign">Campaign is required</div>
+      <b-form-select id="input-campaign" v-model="campaign" :options="campaigns"></b-form-select>
+      <div class="error" v-if="!$v.campaign.required && getSubmitPushed" id="error-campaign">Campaign is required</div>
     </b-container>
 </template>
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'SelectCampaign',
   data () {
     return {
-      campaignSelected: null,
-      getCampaignClean: []
+      campaign: null
     }
   },
   computed: {
-    ...mapGetters(['getAccountSelected', 'getCampaigns', 'getSubmitPushed'])
+    ...mapGetters(['getAccountSelected', 'getCampaignsList', 'getSubmitPushed']),
+    ...mapState(['campaigns', 'campaignSelected', 'accountSelected'])
+  },
+  watch: {
+    accountSelected () {
+      this.campaign = null
+    }
   },
   updated () {
-    this.$store.dispatch('asyncCampaigns', this.getAccountSelected)
-    this.$store.commit('UPDATE_CAMPAIGN_SELECTED', this.campaignSelected)
+    this.$store.commit('UPDATE_CAMPAIGN_SELECTED', this.campaign)
+    this.$store.commit('SET_SOCIAL_NETWORKS', [])
+    this.$store.commit('CLEAN_LIST_SELECTED')
+
+    if (this.campaignSelected) {
+      this.$store.commit('START_LOADER_NETWORKS')
+      this.$store.dispatch('asyncNetworks', this.campaign)
+    }
+
     this.$nextTick(function () {
       const $select = document.querySelector('#input-campaign')
       const $options = $select.childNodes
@@ -34,7 +46,7 @@ export default {
     })
   },
   validations: {
-    campaignSelected: { required }
+    campaign: { required }
   }
 }
 </script>

@@ -18,7 +18,7 @@
   </b-row>
 </template>
 <script>
-import { mapGetters } from 'vuex'
+// import { mapGetters } from 'vuex'
 
 export default {
 
@@ -29,9 +29,6 @@ export default {
       status: 'noSelected',
       selected: null
     }
-  },
-  computed: {
-    ...mapGetters(['getChangeAccount'])
   },
   methods: {
     selectNetwork () {
@@ -44,12 +41,6 @@ export default {
         this.status = 'noSelected'
         this.$store.commit('UNSELECT_SOCIAL_NETWORK', this.network)
       }
-    }
-  },
-  watch: {
-    getChangeAccount () {
-      this.status = 'noSelected'
-      this.selected = false
     }
   }
 }

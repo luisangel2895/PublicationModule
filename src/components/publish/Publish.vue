@@ -22,8 +22,6 @@ import AddHashtag from './AddHashtag'
 import AddLink from './AddLink'
 import VisorPost from './VisorPost'
 
-import { mapState, mapMutations } from 'vuex'
-
 export default {
   name: 'Publish',
   components: {
@@ -31,23 +29,6 @@ export default {
     AddHashtag,
     AddLink,
     VisorPost
-  },
-  data () {
-    return {
-      test: 'test'
-    }
-  },
-  computed: {
-    ...mapState(['number']),
-    hola () {
-      return 'hola ' + this.$store.state.number + ' veces'
-    }
-  },
-  methods: {
-    ...mapMutations(['INCREMENT_NUMBER']),
-    increment () {
-      this.$store.commit('INCREMENT_NUMBER', { number: 23 })
-    }
   }
 }
 </script>
