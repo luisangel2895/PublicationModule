@@ -97,6 +97,7 @@ export default new Vuex.Store({
         const obj = {}
         obj.key = socialNetwork.idCuentaRedSocial
         obj.network = socialNetwork.M_RED_SOCIAL.nomRedSocial.toLowerCase()
+        obj.idNetwork = socialNetwork.M_RED_SOCIAL.idRedSocial
         obj.name = socialNetwork.nomUsuarioRedsocial
         obj.url_profile = 'https://picsum.photos/50/50?random=1'
         return obj
@@ -154,7 +155,7 @@ export default new Vuex.Store({
   },
   actions: {
     asyncUser (context) {
-      axios.get('https://zrswh3t7yb.execute-api.us-east-1.amazonaws.com/dev/v1/Publish/cliente/2')
+      axios.get('https://zrswh3t7yb.execute-api.us-east-1.amazonaws.com/dev/v1/Publish/cliente/7')
         .then((response) => {
           context.commit('GET_ACCOUNTS', response.data)
           console.log('Usuario traido exitosamente', response.data)

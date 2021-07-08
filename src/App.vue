@@ -39,7 +39,7 @@ export default {
   methods: {
     onSubmit () {
       const arrayIdSocialNetworks = this.socialNetworksSelected.map((network) => {
-        return network.key
+        return { idRedSocial: network.idNetwork, idCuentaRedSocial: network.key }
       })
       this.$store.commit('PUSH_SUBMIT_BUTTON')
       console.log(' ---------- DATA FOR NEW POST ----------')
